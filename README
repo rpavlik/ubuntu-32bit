@@ -1,1 +1,7 @@
-Base ubuntu trusty (14.04) docker images (32-bit)
+Base ubuntu (eoan) docker images (32-bit)
+
+Get the root image first by running:
+
+```sh
+wget https://cloud-images.ubuntu.com/eoan/current/eoan-server-cloudimg-i386-root.tar.xz
+```
