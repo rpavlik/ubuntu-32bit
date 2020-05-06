@@ -1,5 +1,9 @@
+# based on https://github.com/M0E-lnx/ubuntu-32bit
+
+
 FROM scratch
-ADD ubuntu-trusty-core-cloudimg-i386-root.tar.gz /
+LABEL maintainer="Ryan Pavlik <ryan.pavlik@collabora.com>"
+ADD eoan-server-cloudimg-i386-root.tar.xz /
 
 # a few minor docker-specific tweaks
 # see https://github.com/docker/docker/blob/9a9fc01af8fb5d98b8eec0740716226fadb3735c/contrib/mkimage/debootstrap
@@ -48,15 +52,17 @@ ENV TERM=linux
 ENV EDITOR=nano
 
 # Install a couple of tools
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && apt-get update && \
-  echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-  echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
-  apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y nano wget sudo net-tools software-properties-common \
-  ca-certificates unzip apt-transport-https && \
-  apt-add-repository -y ppa:brightbox/ruby-ng && \
-  apt-get -y purge software-properties-common && apt-get -y autoremove && \
-  rm -rf /var/lib/apt/lists/* 
+RUN echo 'path-exclude=/usr/share/doc/*' > /etc/dpkg/dpkg.cfg.d/99-exclude-cruft && \
+    echo 'path-exclude=/usr/share/locale/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft && \
+    echo 'path-exclude=/usr/share/man/*' >> /etc/dpkg/dpkg.cfg.d/99-exclude-cruft && \
+    echo 'APT::Install-Recommends 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+    echo 'APT::Install-Suggests 0;' >> /etc/apt/apt.conf.d/01norecommends && \
+    apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y nano wget sudo net-tools ca-certificates unzip apt-transport-https && \
+    env DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade && \
+    env DEBIAN_FRONTEND=noninteractive apt-get -y autoremove && \
+    env DEBIAN_FRONTEND=noninteractive apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # overwrite this with 'CMD []' in a dependent Dockerfile
 CMD ["/bin/bash"]
